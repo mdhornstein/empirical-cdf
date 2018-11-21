@@ -2,11 +2,33 @@
 title: "CDF Estimation"
 author: "Michael Hornstein"
 date: "11/20/2018"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+```
+
+By the Dvoretzky-Kiefer-Wolfowitz inequality, 
+$$
+P\left( \sup_x \left | F(x) - \widehat{F}_n(x) \right | > \varepsilon \right) \leq 2 \exp( - 2n \varepsilon^2).
+$$
+If we substitute 
+$$
+  \varepsilon = \sqrt{}
+$$
+
+See the link https://ggplot2.tidyverse.org/reference/stat_ecdf.html.
+
+```{r}
+n <- 1e2
+df <- data.frame(x = rnorm(n), 
+                 y = pdf(rnorm))
+ggplot(df, aes(x)) + stat_ecdf()
 ```
 
 ## R Markdown
@@ -14,6 +36,7 @@ knitr::opts_chunk$set(echo = TRUE)
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
 
 ```{r cars}
 summary(cars)
