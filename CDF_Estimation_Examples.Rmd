@@ -3,8 +3,8 @@ title: "CDF Estimation"
 author: "Michael Hornstein"
 date: "11/20/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -14,14 +14,40 @@ library(ggplot2)
 library(dplyr)
 ```
 
+### Confidence Bands 
+
+Suppose $F(x)$ is a function, and $\widehat{F}_n(x)$ is an estimate of $F$ based on sample of size $n$.  Suppose someone has proven a result of the form 
+$$
+  P\left( \sup_x \left| F(x) - \widehat{F}_n(x) \right| > \varepsilon \right) \leq g(\varepsilon, n).
+$$
+
+Note that $g(\varepsilon, n)$ is a decreasing 
+
+### Dvoretzky-Kiefer-Wolfowitz inequality and Confidence Bands
+
 By the Dvoretzky-Kiefer-Wolfowitz inequality, 
-$$
+\begin{equation} \label{DKW}
 P\left( \sup_x \left | F(x) - \widehat{F}_n(x) \right | > \varepsilon \right) \leq 2 \exp( - 2n \varepsilon^2).
+\end{equation}
+
+Note that the right-hand side of \eqref{DKW} is a decreasing function of $n$ and $\varepsilon$.  The larger the sample size, the smaller the probaiblity that the error exceeds $\varepsilon$.  Also, the larger $\varepsilon$, the smaller the probability that the error exceeds $\varepsilon$ (because a larger $\varepsilon$ is more permissive).  
+
+As discussed in Chapter 7 of Wasserman's All of Statistics, we can use this result to form a confidence band around the empirical cdf.
+
+For a fixed sample size $n$, we can find the value of $\varepsilon$ for which the probability bound in \eqref{DKW} is equal to $\alpha = 0.05$.  To do so, we solve the following equation for $\varepsilon$: 
 $$
-If we substitute 
+2\exp( - 2n \varepsilon^2) = \alpha.
+$$, 
+The solution is 
 $$
-  \varepsilon = \sqrt{}
+\varepsilon = \sqrt{ \frac{\log(\alpha / 2)}{-2n} } = \sqrt{ \frac{\log(2 / \alpha)}{2n} }.
 $$
+It follows that 
+$$
+P\left( \sup_x \left | F(x) - \widehat{F}_n(x) \right | > \sqrt{ \frac{\log(2 / \alpha)}{2n} } \right) \leq \alpha.
+$$
+
+
 
 See the link https://ggplot2.tidyverse.org/reference/stat_ecdf.html.
 
