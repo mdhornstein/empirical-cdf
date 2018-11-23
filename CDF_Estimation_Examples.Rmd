@@ -14,18 +14,22 @@ library(ggplot2)
 library(dplyr)
 ```
 
-### Confidence Bands 
+ 
 
-Suppose $F(x)$ is a cdf, and $\widehat{F}_n(x)$ is an estimate of $F$ based on sample of size $n$.  Suppose someone has proven a result of the form 
-\begin{equation} \label{confBandBound}
-  P\left( \sup_x \left| F(x) - \widehat{F}_n(x) \right| > \varepsilon \right) \leq g(\varepsilon, n),
+## Dvoretzky-Kiefer-Wolfowitz inequality and Confidence Bands
+
+By the Dvoretzky-Kiefer-Wolfowitz inequality, 
+\begin{equation} \label{DKW}
+P\left( \sup_x \left | F(x) - \widehat{F}_n(x) \right | > \varepsilon \right) \leq 2 \exp( - 2n \varepsilon^2).
 \end{equation}
+
+The right-hand side of \eqref{DKW} is a decreasing function of $n$ and $\varepsilon$.  The larger the sample size $n$, the smaller the probaiblity that the error exceeds $\varepsilon$.  The larger the error threshold $\varepsilon$, the smaller the probability that the error exceeds $\varepsilon$ (i.e. a larger $\varepsilon$ is more permissive).  
 
 Geometrically, the event 
 \begin{equation} \label{supError}
 \mathcal{E} := \left\{ \sup_x \left| F(x) - \widehat{F}_n(x) \right| \leq \varepsilon \right\}
 \end{equation}
-corresponds to the estimated function $\widehat{F}_n$ being within a band of width $\varepsilon$ above or below the function $F$.  Inequality \eqref{confBandBound} bounds the probability that $\mathcal{E}$ fails to occur.
+corresponds to the estimated function $\widehat{F}_n$ being within a band of width $\varepsilon$ above or below the function $F$.  Inequality \eqref{DKW} bounds the probability that $\mathcal{E}$ fails to occur.
 
 ```{r echo=FALSE}
 # True CDF 
@@ -52,40 +56,12 @@ ggplot(df, aes(x.values, F.hat)) +
 ```
 
 
-
-Suppose $g(\varepsilon, n)$ is a decreasing function of $n$, so that as the sample size increases, the probability that the error exceeds a fixed threshold decreases.  Furthermore, note that $g(\varepsilon, n)$ is a decreasing function of $\varepsilon$, because as the threshold increases (i.e. gets more permissive), the probability that the error exceeds the threshold decreases.
-
-Inequality \eqref{confBandBound} uses a fixed threshold $\varepsilon$ that does not depend on $n$.  But we could allow the threshold to depend on $n$ by applying the inequality using a threshold that depends on $n$, as follows: 
-$$
-P\left( \sup_x \left| F(x) - \widehat{F}_n(x) \right| > \varepsilon(n) \right) \leq g( \varepsilon(n), n).
-$$
-In particular, for a fixed $\alpha \in [0, 1]$ (typically $\alpha = 0.05$), let's solve the equation $g(\varepsilon, n) = \alpha$ for $\varepsilon$ as a function of $n$, denoting the solution as $\varepsilon_\alpha(n)$.  Then 
-$$
-P\left( \sup_x \left| F(x) - \widehat{F}_n(x) \right| > \varepsilon_\alpha(n) \right) \leq g( \varepsilon_\alpha(n), n) = \alpha.
-$$
-This inequality states that with probability at least $1 - \alpha$, the function $\widehat{F}_n$ remains within a band of $F$ of width plus/minus $\varepsilon_\alpha(n)$, i.e. 
-$$ 
-  \lVert F - \widehat{F}_n \rVert_\infty \leq \varepsilon_\alpha(n) \qquad \text{with probability at least $1 - \alpha$},
-$$ 
-where $\lVert f(x) \rVert_\infty := \sup_x |f(x)|$ is the $\ell_\infty$ norm.  
-
-The key point is that $g(\varepsilon, n)$ in \eqref{confBandBound} does not depend on the true distribution $F$, so we end up with a bound on the error in estimating $F$ that holds with the same probability regardless of the true unknown $F$.  This is what makes it possible to form the confidence band.  
-
-### Dvoretzky-Kiefer-Wolfowitz inequality and Confidence Bands
-
-By the Dvoretzky-Kiefer-Wolfowitz inequality, 
-\begin{equation} \label{DKW}
-P\left( \sup_x \left | F(x) - \widehat{F}_n(x) \right | > \varepsilon \right) \leq 2 \exp( - 2n \varepsilon^2).
-\end{equation}
-
-Note that the right-hand side of \eqref{DKW} is a decreasing function of $n$ and $\varepsilon$.  The larger the sample size, the smaller the probaiblity that the error exceeds $\varepsilon$.  Also, the larger $\varepsilon$, the smaller the probability that the error exceeds $\varepsilon$ (because a larger $\varepsilon$ is more permissive).  
-
 As discussed in Chapter 7 of Wasserman's All of Statistics, we can use this result to form a confidence band around the empirical cdf.
 
 For a fixed sample size $n$, we can find the value of $\varepsilon$ for which the probability bound in \eqref{DKW} is equal to $\alpha = 0.05$.  To do so, we solve the following equation for $\varepsilon$: 
 $$
 2\exp( - 2n \varepsilon^2) = \alpha.
-$$, 
+$$
 The solution is 
 $$
 \varepsilon = \sqrt{ \frac{\log(\alpha / 2)}{-2n} } = \sqrt{ \frac{\log(2 / \alpha)}{2n} }.
@@ -95,7 +71,35 @@ $$
 P\left( \sup_x \left | F(x) - \widehat{F}_n(x) \right | > \sqrt{ \frac{\log(2 / \alpha)}{2n} } \right) \leq \alpha.
 $$
 
+### Confidence Bands 
 
+Inequality \eqref{DKW} is of the form 
+\begin{equation} \label{confBandBound}
+  P\left( \sup_x \left| F(x) - \widehat{F}_n(x) \right| > \varepsilon \right) \leq g(\varepsilon, n),
+\end{equation}
+where $g$ is a decreasing function of the sample size $n$ and the error threshold $\varepsilon$.  The event in \eqref{confBandBound} is that the true cdf $F$ does not lie within the confidence band of half-width $\varepsilon$.  For a given $n$, we can choose $\varepsilon$ so the probability is at most $\alpha$.  To choose $\varepsilon$, we solve $g(\varepsilon, n) = \alpha$ for $\varepsilon$.  Let's call the solution $\varepsilon_\alpha(n)$.  Plugging in $\varepsilon_\alpha(n)$ yields
+$$
+P\left( \sup_x \left| F(x) - \widehat{F}_n(x) \right| > \varepsilon_\alpha(n) \right) \leq g( \varepsilon_\alpha(n), n) = \alpha.
+$$
+A key point regarding \eqref{confBandBound} is that $g(\varepsilon, n)$ does not depend on the true cdf $F$.  The bound holds with the same probability regardless of the true unknown $F$.  This is what makes it possible to form the confidence band.  Regardless of the true cdf $F$, the event $\sup_x \left| F(x) - \widehat{F}_n \right| > \varepsilon$ has probability at most $\alpha$, so the confidence band contains the true $F$ with probability at least $1 - \alpha$.  
+
+
+## Scratch Work 
+
+This inequality states that with probability at least $1 - \alpha$, the function $\widehat{F}_n$ remains within a band of $F$ of width plus/minus $\varepsilon_\alpha(n)$, i.e. 
+$$ 
+  \lVert F - \widehat{F}_n \rVert_\infty \leq \varepsilon_\alpha(n) \qquad \text{with probability at least $1 - \alpha$},
+$$ 
+where $\lVert f(x) \rVert_\infty := \sup_x |f(x)|$ is the $\ell_\infty$ norm.  
+
+$$
+P\left( \sup_x \left| F(x) - \widehat{F}_n(x) \right| > \varepsilon(n) \right) \leq g( \varepsilon(n), n).
+$$
+In particular, for a fixed $\alpha \in [0, 1]$ (typically $\alpha = 0.05$), let's solve the equation $g(\varepsilon, n) = \alpha$ for $\varepsilon$ as a function of $n$, denoting the solution as $\varepsilon_\alpha(n)$.  Then 
+
+Inequality \eqref{confBandBound} uses a fixed threshold $\varepsilon$ that does not depend on $n$.  But we could allow the threshold to depend on $n$ by applying the inequality using a threshold that depends on $n$, as follows: 
+
+The function $g(\varepsilon, n)$ is a decreasing function of $n$, so as the sample size increases, the probability that the error exceeds a fixed threshold decreases.  Furthermore, note that $g(\varepsilon, n)$ is a decreasing function of $\varepsilon$, because as the threshold increases (i.e. gets more permissive), the probability that the error exceeds the threshold decreases.
 
 See the link https://ggplot2.tidyverse.org/reference/stat_ecdf.html.
 
