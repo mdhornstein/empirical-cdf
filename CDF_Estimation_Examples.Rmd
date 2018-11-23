@@ -27,6 +27,32 @@ Geometrically, the event
 \end{equation}
 corresponds to the estimated function $\widehat{F}_n$ being within a band of width $\varepsilon$ above or below the function $F$.  Inequality \eqref{confBandBound} bounds the probability that $\mathcal{E}$ fails to occur.
 
+```{r echo=FALSE}
+# True CDF 
+x.values <- seq(from=-3, to=3, length.out=1e3)
+F.true <- pnorm(x.values)
+# Estimated CDF 
+n <- 30
+sample.values <- rnorm(n)
+F.hat <- ecdf(sample.values)(x.values)
+df <- data.frame(x.values, F.true, F.hat)
+alpha <- 0.05 
+conf.band.width <- sqrt(log(2 / alpha) / (2 * n))
+# Plot a band around 
+ggplot(df, aes(x.values, F.hat)) + 
+  geom_ribbon(aes(ymin=F.hat - conf.band.width, 
+                  ymax=F.hat + conf.band.width), 
+              fill="grey70") + 
+  geom_line(col="red") + 
+  geom_line(aes(x.values, F.true)) + 
+  ylab("Cumulative Distribution Function") + 
+  xlab("x") + 
+  ggtitle("CDF with Confidence Band") + 
+  annotate("text", x=0, y=0.5, label="")
+```
+
+
+
 Suppose $g(\varepsilon, n)$ is a decreasing function of $n$, so that as the sample size increases, the probability that the error exceeds a fixed threshold decreases.  Furthermore, note that $g(\varepsilon, n)$ is a decreasing function of $\varepsilon$, because as the threshold increases (i.e. gets more permissive), the probability that the error exceeds the threshold decreases.
 
 Inequality \eqref{confBandBound} uses a fixed threshold $\varepsilon$ that does not depend on $n$.  But we could allow the threshold to depend on $n$ by applying the inequality using a threshold that depends on $n$, as follows: 
