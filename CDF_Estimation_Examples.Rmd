@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(ggplot2)
 library(dplyr)
+library(reshape2)
 ```
 
  
@@ -22,6 +23,22 @@ By the Dvoretzky-Kiefer-Wolfowitz inequality,
 \begin{equation} \label{DKW}
 P\left( \sup_x \left | F(x) - \widehat{F}_n(x) \right | > \varepsilon \right) \leq 2 \exp( - 2n \varepsilon^2).
 \end{equation}
+
+```{r}
+n.values <- seq(from=10, to=200, by=10)
+epsilon.values <- seq(from=0, to=1, length.out=10)
+bound <- outer(X=n.values, Y=epsilon.values, 
+               FUN=function(n, eps) 2 * exp(- 2 * n * eps^2))
+df <- data.frame(n.values, bound)
+names(df)[2:ncol(df)] <- paste0(
+  "eps_", round(epsilon.values, 2))
+df.melted <- melt(df, id.vars="n.values")
+ggplot(df.melted, aes(n.values, value, col=variable)) +
+  geom_line() + 
+  ggtitle("Probability Bound vs. Sample Size") + 
+  xlab("n") + 
+  ylab("Upper Bound on Probability")
+```
 
 The right-hand side of \eqref{DKW} is a decreasing function of $n$ and $\varepsilon$.  The larger the sample size $n$, the smaller the probaiblity that the error exceeds $\varepsilon$.  The larger the error threshold $\varepsilon$, the smaller the probability that the error exceeds $\varepsilon$ (i.e. a larger $\varepsilon$ is more permissive).  
 
@@ -112,4 +129,7 @@ df <- data.frame(z.observed = rnorm(n),
 ggplot(df) + stat_ecdf(aes(z.observed)) + 
   geom_line(aes(x.values, z.pdf), col="red")
 ```
+
+
+
 
