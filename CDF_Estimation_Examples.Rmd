@@ -24,21 +24,6 @@ By the Dvoretzky-Kiefer-Wolfowitz inequality,
 P\left( \sup_x \left | F(x) - \widehat{F}_n(x) \right | > \varepsilon \right) \leq 2 \exp( - 2n \varepsilon^2).
 \end{equation}
 
-```{r}
-n.values <- seq(from=10, to=200, by=10)
-epsilon.values <- seq(from=0, to=1, length.out=10)
-bound <- outer(X=n.values, Y=epsilon.values, 
-               FUN=function(n, eps) 2 * exp(- 2 * n * eps^2))
-df <- data.frame(n.values, bound)
-names(df)[2:ncol(df)] <- paste0(
-  "eps_", round(epsilon.values, 2))
-df.melted <- melt(df, id.vars="n.values")
-ggplot(df.melted, aes(n.values, value, col=variable)) +
-  geom_line() + 
-  ggtitle("Probability Bound vs. Sample Size") + 
-  xlab("n") + 
-  ylab("Upper Bound on Probability")
-```
 
 The right-hand side of \eqref{DKW} is a decreasing function of $n$ and $\varepsilon$.  The larger the sample size $n$, the smaller the probaiblity that the error exceeds $\varepsilon$.  The larger the error threshold $\varepsilon$, the smaller the probability that the error exceeds $\varepsilon$ (i.e. a larger $\varepsilon$ is more permissive).  
 
@@ -100,6 +85,49 @@ P\left( \sup_x \left| F(x) - \widehat{F}_n(x) \right| > \varepsilon_\alpha(n) \r
 $$
 A key point regarding \eqref{confBandBound} is that $g(\varepsilon, n)$ does not depend on the true cdf $F$.  The bound holds with the same probability regardless of the true unknown $F$.  This is what makes it possible to form the confidence band.  Regardless of the true cdf $F$, the event $\sup_x \left| F(x) - \widehat{F}_n \right| > \varepsilon$ has probability at most $\alpha$, so the confidence band contains the true $F$ with probability at least $1 - \alpha$.  
 
+## Understanding the right-hand side of DKW inequality
+The DKW inequality is not vacuous if 
+$$
+2 \exp(-2n \varepsilon^2) < 1,
+$$ 
+which is equivalent to 
+$$ 
+n > \frac{ \log(1/2) }{-2\varepsilon^2} = \frac{\log(2)}{2 \varepsilon^2}.
+$$ 
+The necessary order of growth of $n$ for the bound to not be vacuous is $n = \Omega(\varepsilon^{-2})$.  
+```{r echo=FALSE}
+eps.values <- seq(from=0.01, to=2, length.out=1e3)
+n.values <- log(2) / (2 * eps.values^2)
+par(mfrow=c(1, 2))
+par(pty="s")
+plot(eps.values, n.values, type="l", ylab="n", xlab="epsilon")
+plot(eps.values, log10(n.values), type="l", 
+     ylab="log10(n)", xlab="epsilon")
+```
+
+```{r}
+n.values <- seq(from=10, to=75, by=10)
+epsilon.values <- seq(from=0.21, to=1, length.out=8)
+bound <- outer(X=n.values, Y=epsilon.values, 
+               FUN=function(n, eps) 2 * exp(- 2 * n * eps^2))
+df <- data.frame(n.values, bound)
+names(df)[2:ncol(df)] <- paste0(
+  "eps_", round(epsilon.values, 2))
+df.melted <- melt(df, id.vars="n.values")
+ggplot(df.melted, aes(n.values, value, col=variable)) +
+  geom_line() + 
+  ggtitle("Probability Bound vs. Sample Size") + 
+  xlab("n") + 
+  ylab("Upper Bound on Probability") + 
+  ylim(0, 1)
+```
+
+
+
+## To Do 
+
+* Fix the legend of the graph of probability vs. sample size 
+* Plot confidence bands for different values of n
 
 ## Scratch Work 
 
