@@ -125,6 +125,24 @@ ggplot(df.melted, aes(n.values, value, col=epsilon)) +
 ```
 
 
+```{r}
+x.values <- seq(from=-3, to=3, length.out=1e3)
+n.values <- c(10, 20, 30, 40)
+df <- data.frame(
+  x = rnorm(sum(n.values)),
+  n  = rep(n.values, times=n.values) %>% factor)
+
+# Plot all four empirical cdf's on the same plot
+ggplot(df, aes(x, col=n)) + stat_ecdf() + 
+  stat_function(fun = pnorm, geom="line", lwd=1, 
+                col="red") 
+
+# Separate plot for each cdf
+ggplot(df, aes(x)) + facet_wrap(~n) + stat_ecdf() + 
+  stat_function(fun = pnorm, geom="line", lwd=1, 
+                col="red") 
+```
+
 
 ## To Do 
 
