@@ -111,10 +111,12 @@ epsilon.values <- seq(from=0.21, to=1, length.out=8)
 bound <- outer(X=n.values, Y=epsilon.values, 
                FUN=function(n, eps) 2 * exp(- 2 * n * eps^2))
 df <- data.frame(n.values, bound)
-names(df)[2:ncol(df)] <- paste0(
-  "eps_", round(epsilon.values, 2))
-df.melted <- melt(df, id.vars="n.values")
-ggplot(df.melted, aes(n.values, value, col=variable)) +
+# names(df)[2:ncol(df)] <- paste0(
+#   "eps_", round(epsilon.values, 2))
+names(df)[2:ncol(df)] <- round(epsilon.values, 2)
+df.melted <- melt(df, id.vars="n.values", 
+                  variable.name="epsilon")
+ggplot(df.melted, aes(n.values, value, col=epsilon)) +
   geom_line() + 
   ggtitle("Probability Bound vs. Sample Size") + 
   xlab("n") + 
