@@ -141,6 +141,16 @@ ggplot(df, aes(x, col=n)) + stat_ecdf() +
 ggplot(df, aes(x)) + facet_wrap(~n) + stat_ecdf() + 
   stat_function(fun = pnorm, geom="line", lwd=1, 
                 col="red") 
+
+x.values <- seq(from=-3, to=3, length.out=1e3)
+n.values <- c(10, 20, 30, 40)
+df <- data.frame(
+  x = rnorm(sum(n.values)),
+  n  = rep(n.values, times=n.values) %>% factor) %>% 
+  group_by(n) %>% 
+  mutate(ecdf = ecdf(x)(sort(x)), 
+         x.sorted = sort(x))
+ggplot(df, aes(x.sorted, ecdf, col=n)) + geom_step()
 ```
 
 
