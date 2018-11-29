@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(dplyr)
 library(reshape2)
+library(gridExtra)
 ```
 
  
@@ -151,6 +152,19 @@ df <- data.frame(
   mutate(ecdf = ecdf(x)(sort(x)), 
          x.sorted = sort(x))
 ggplot(df, aes(x.sorted, ecdf, col=n)) + geom_step()
+```
+
+
+```{r}
+n.values <- c(10, 20, 30, 40)
+z.list <- lapply(n.values, function(n) rnorm(n))
+df.list <- lapply(z.list, function(z) data.frame(
+  x.values=seq(from=-3, to=3, length.out=1e3), 
+  ecdf=ecdf(z)(x.values)))
+plt.list <- lapply(
+  df.list, function(df) ggplot(df, aes(x.values, ecdf)) + 
+    geom_line())
+do.call(grid.arrange, plt.list)
 ```
 
 
