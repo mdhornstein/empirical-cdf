@@ -160,10 +160,11 @@ n.values <- c(10, 20, 30, 40)
 z.list <- lapply(n.values, function(n) rnorm(n))
 df.list <- lapply(z.list, function(z) data.frame(
   x.values=seq(from=-3, to=3, length.out=1e3), 
-  ecdf=ecdf(z)(x.values)))
+  ecdf.values=ecdf(z)(x.values)))
 plt.list <- lapply(
-  df.list, function(df) ggplot(df, aes(x.values, ecdf)) + 
-    geom_line())
+  df.list, function(df) ggplot(df, aes(x.values, ecdf.values)) + 
+    geom_line() + 
+    geom_ribbon(aes(ymin=ecdf.values - 0.2, ymax=ecdf.values+0.2)))
 do.call(grid.arrange, plt.list)
 ```
 
